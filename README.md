@@ -1,1 +1,1 @@
-Risk Regime Inference Model
+The Risk Regime Inference Model is designed to predict regimes using 1D TCNs, Gausian HMMs, and self-supervised learning.  Regimes are unable to be directly observed and are therefore regarded as latent states.  
