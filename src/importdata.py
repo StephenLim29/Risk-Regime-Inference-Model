@@ -29,15 +29,19 @@ def lr_and_rv(data_path):
     DATA_DIR.mkdir(exist_ok=True)
     prices = pd.read_csv(data_path, index_col="Date", parse_dates=True)
     log_returns = np.log(prices).diff()
-    log_returns = log_returns.add_suffix("_lr")
-
     rolling_volatility = np.sqrt((log_returns**2).rolling(30).mean())
-    rolling_volatility = rolling_volatility.add_suffix("_rv")
 
-    combined = pd.concat([log_returns, rolling_volatility], axis=1).dropna(how="any")
+    log_returns_long = log_returns.stack().rename("log_ret")
+    rv_long = rolling_volatility.stack().rename("rv30")
 
-    combined.to_csv(DATA_DIR / "lr_rv.csv")
-    combined.to_parquet(DATA_DIR / "lr_rv.parquet")
+    combined = (
+        pd.concat([log_returns_long, rv_long], axis=1)
+        .dropna()
+        .rename_axis(index=["date", "ticker"])
+        .reset_index()
+    )
+
+    combined.to_parquet(DATA_DIR / "lr_rv.parquet", index=False)
     return True
 
 if __name__ == "__main__":
